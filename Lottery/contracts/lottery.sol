@@ -17,6 +17,23 @@ contract Lottery {
     }
 
     function getBalance() public view returns(uint) {
+        require(msg.sender == manager);
         return address(this).balance;
+    }
+
+    function random() public view returns(uint) {
+        return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, players.length))); // Generates a Random Number 
+    }
+
+    function pickWinner() public {
+        require(msg.sender == manager);
+        require(players.length >= 3);
+
+        uint randomNumber = random();
+        address payable winner;
+        uint index = randomNumber % players.length;
+        winner = players[index];
+        winner.transfer(getBalance());
+        players = new address payable[](0);
     }
 }
